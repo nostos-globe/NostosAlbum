@@ -10,10 +10,10 @@ import (
 )
 
 type AlbumController struct {
-	AlbumService *service.AlbumService
-	AuthClient *service.AuthClient
+	AlbumService  *service.AlbumService
+	AuthClient    *service.AuthClient
 	ProfileClient *service.ProfileClient
-	TripClient *service.TripClient
+	TripClient    *service.TripClient
 }
 
 func (c *AlbumController) CreateAlbum(ctx *gin.Context) {
@@ -41,7 +41,7 @@ func (c *AlbumController) CreateAlbum(ctx *gin.Context) {
 	}
 
 	albumMapper := &models.AlbumMapper{}
-    album := albumMapper.ToAlbum(req, tokenResponse)
+	album := albumMapper.ToAlbum(req, tokenResponse)
 
 	createdAlbum, err := c.AlbumService.CreateAlbum(album)
 	if err != nil {
@@ -60,14 +60,14 @@ func (c *AlbumController) GetMyAlbums(ctx *gin.Context) {
 	}
 
 	tokenResponse, err := c.AuthClient.GetUserID(tokenCookie)
-	if err!= nil || tokenResponse == 0 {
+	if err != nil || tokenResponse == 0 {
 		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "failed to find this user"})
 		return
 	}
 
 	albums, err := c.AlbumService.GetAlbumsByUserID(tokenResponse)
 
-	if err!= nil {
+	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "failed to get albums"})
 		return
 	}
@@ -83,14 +83,14 @@ func (c *AlbumController) GetPublicAlbums(ctx *gin.Context) {
 	}
 
 	tokenResponse, err := c.AuthClient.GetUserID(tokenCookie)
-	if err!= nil || tokenResponse == 0 {
+	if err != nil || tokenResponse == 0 {
 		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "failed to find this user"})
 		return
 	}
 
 	albums, err := c.AlbumService.GetPublicAlbums()
 
-	if err!= nil {
+	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "failed to get albums"})
 		return
 	}
@@ -100,13 +100,13 @@ func (c *AlbumController) GetPublicAlbums(ctx *gin.Context) {
 
 func (c *AlbumController) GetAlbumByID(ctx *gin.Context) {
 	tokenCookie, err := ctx.Cookie("auth_token")
-	if err!= nil {
+	if err != nil {
 		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "no token found"})
 		return
-	}	
+	}
 
 	tokenResponse, err := c.AuthClient.GetUserID(tokenCookie)
-	if err!= nil || tokenResponse == 0 {
+	if err != nil || tokenResponse == 0 {
 		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "failed to find this user"})
 		return
 	}
@@ -114,31 +114,31 @@ func (c *AlbumController) GetAlbumByID(ctx *gin.Context) {
 	albumID := ctx.Param("id")
 
 	album, err := c.AlbumService.GetAlbumByID(albumID)
-	if err!= nil {
+	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "failed to get album"})
-		return	
+		return
 	}
 
 	tripList, err := c.AlbumService.GetTripsByAlbumID(albumID)
 	if err != nil {
 		tripList = []uint{}
 	}
-	
-	var trips []models.Trip
-    for _, tripID := range tripList {
-        trip, err := c.TripClient.GetTripByID(tokenCookie, tripID)
-        if err != nil {
-            continue
-        }
-        trips = append(trips, trip)
-    }
 
-    response := gin.H{
-        "album": album,
-        "trips": trips,
-    }
+	var trips []models.TripMedia
+	for _, tripID := range tripList {
+		trip, err := c.TripClient.GetTripByID(tokenCookie, tripID)
+		if err != nil {
+			continue
+		}
+		trips = append(trips, trip)
+	}
 
-    ctx.JSON(http.StatusOK, response)
+	response := gin.H{
+		"album": album,
+		"trips": trips,
+	}
+
+	ctx.JSON(http.StatusOK, response)
 }
 
 func (c *AlbumController) UpdateAlbum(ctx *gin.Context) {
@@ -149,18 +149,18 @@ func (c *AlbumController) UpdateAlbum(ctx *gin.Context) {
 	}
 
 	tokenCookie, err := ctx.Cookie("auth_token")
-	if err!= nil {
+	if err != nil {
 		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "no token found"})
 		return
 	}
 
 	tokenResponse, err := c.AuthClient.GetUserID(tokenCookie)
-	if err!= nil || tokenResponse == 0 {
+	if err != nil || tokenResponse == 0 {
 		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "failed to find this user"})
 		return
 	}
 
-	if err := ctx.ShouldBindJSON(&req); err!= nil {
+	if err := ctx.ShouldBindJSON(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
@@ -168,7 +168,7 @@ func (c *AlbumController) UpdateAlbum(ctx *gin.Context) {
 	albumID := ctx.Param("id")
 
 	album, err := c.AlbumService.GetAlbumByID(albumID)
-	if err!= nil {
+	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "failed to get album"})
 		return
 	}
@@ -179,18 +179,18 @@ func (c *AlbumController) UpdateAlbum(ctx *gin.Context) {
 	}
 
 	albumMapper := &models.AlbumMapper{}
-    album = albumMapper.ToAlbum(req, tokenResponse)
+	album = albumMapper.ToAlbum(req, tokenResponse)
 	id, err := strconv.ParseUint(albumID, 10, 32)
-    if err != nil {
-        ctx.JSON(http.StatusBadRequest, gin.H{"error": "invalid album ID"})
-        return
-    }
-    album.AlbumID = int(id)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "invalid album ID"})
+		return
+	}
+	album.AlbumID = int(id)
 
 	updatedAlbum, err := c.AlbumService.UpdateAlbum(album)
-	if err!= nil {
+	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "failed to update album"})
-		return	
+		return
 	}
 
 	ctx.JSON(http.StatusOK, updatedAlbum)
@@ -198,13 +198,13 @@ func (c *AlbumController) UpdateAlbum(ctx *gin.Context) {
 
 func (c *AlbumController) DeleteAlbum(ctx *gin.Context) {
 	tokenCookie, err := ctx.Cookie("auth_token")
-	if err!= nil {
+	if err != nil {
 		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "no token found"})
 		return
-	}	
+	}
 
 	tokenResponse, err := c.AuthClient.GetUserID(tokenCookie)
-	if err!= nil || tokenResponse == 0 {
+	if err != nil || tokenResponse == 0 {
 		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "failed to find this user"})
 		return
 	}
@@ -212,18 +212,18 @@ func (c *AlbumController) DeleteAlbum(ctx *gin.Context) {
 	albumID := ctx.Param("id")
 
 	album, err := c.AlbumService.GetAlbumByID(albumID)
-	if err!= nil {
+	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "failed to get album"})
-		return	
+		return
 	}
 
-	if album.UserID!= tokenResponse {
+	if album.UserID != tokenResponse {
 		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "you are not the owner of this album"})
-		return	
+		return
 	}
 
 	err = c.AlbumService.DeleteAlbum(albumID)
-	if err!= nil {
+	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "failed to delete album"})
 		return
 	}

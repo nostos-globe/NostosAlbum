@@ -8,5 +8,9 @@ type Trip struct {
 	Visibility  string `json:"visibility"`
 	StartDate   string `json:"start_date" `
 	EndDate     string `json:"end_date"`
-	Media      []Media `json:"media"`
+}
+
+type TripMedia struct {
+	Trip  Trip    `json:"trip"`
+	Media []Media `json:"media"`
 }
