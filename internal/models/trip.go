@@ -1,7 +1,7 @@
 package models
 
 type Trip struct {
-	TripID      int    `json:"trip_id"`
+	TripID      uint   `json:"TripID"`
 	UserID      uint   `json:"user_id""`
 	Name        string `json:"name"`
 	Description string `json:"description"`

@@ -119,10 +119,19 @@ func (c *AlbumController) GetAlbumByID(ctx *gin.Context) {
 		return	
 	}
 
-	trips, err := c.AlbumService.GetTripsByAlbumID(albumID)
+	tripList, err := c.AlbumService.GetTripsByAlbumID(albumID)
 	if err != nil {
-		trips = []uint{}
+		tripList = []uint{}
 	}
+	
+	var trips []models.Trip
+    for _, tripID := range tripList {
+        trip, err := c.TripClient.GetTripByID(tokenCookie, tripID)
+        if err != nil {
+            continue
+        }
+        trips = append(trips, trip)
+    }
 
     response := gin.H{
         "album": album,
