@@ -16,6 +16,7 @@ type Config struct {
 	JWTSecret         string
 	AuthServiceUrl    string
 	ProfileServiceUrl string
+	TripsServiceUrl   string
 }
 
 func LoadConfig() *Config {
@@ -25,7 +26,7 @@ func LoadConfig() *Config {
 	}
 
 	return &Config{
-		DBHost:            os.Getenv("DB_HOST"),
+		DBHost:            "localhost",
 		DBUser:            os.Getenv("DB_USER"),
 		DBPassword:        os.Getenv("DB_PASSWORD"),
 		DBName:            os.Getenv("DB_NAME"),
@@ -33,6 +34,6 @@ func LoadConfig() *Config {
 		JWTSecret:         os.Getenv("JWT_SECRET"),
 		AuthServiceUrl:    os.Getenv("AUTH_SERVICE_URL"),
 		ProfileServiceUrl: os.Getenv("PROFILE_SERVICE_URL"),
-		TripsServiceUrl:   os.Getenv("TRIPS_SERVICE_URL"),
+		TripsServiceUrl:   "localhost:8084",
 	}
 }

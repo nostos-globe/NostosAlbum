@@ -46,19 +46,23 @@ func main() {
 	}
 
 	// Initialize repositories
-	tripRepo := &dbRepo.TripsRepository{DB: database}
+	albumRepo := &dbRepo.AlbumRepository{DB: database}
 
 	// Initialize clients for external apis
 	authClient := &service.AuthClient{BaseURL: cfg.AuthServiceUrl}
 	profileClient := &service.ProfileClient{BaseURL: cfg.ProfileServiceUrl}
-
-	// Initialize MinioService
-	minioService := service.NewMinioService()
+	tripClient := &service.TripClient{BaseURL: cfg.TripsServiceUrl}
 
 	// Initialize services
+	albumService := &service.AlbumService{AlbumRepo: albumRepo}
 
 	// Initialize controllers
-
+	albumHandler := &controller.AlbumController{
+		AlbumService:     	albumService,
+		AuthClient:       	authClient,
+		ProfileClient: 		profileClient,
+		TripClient:			tripClient,
+	}
 
 	// Initialize Gin
 	r := gin.Default()
@@ -67,17 +71,21 @@ func main() {
 	api := r.Group("/api/albums")
 	{
 		api.POST("/", albumHandler.CreateAlbum)
-
+		api.GET("/", albumHandler.GetMyAlbums)
+		api.GET("/public", albumHandler.GetPublicAlbums)
+		api.GET("/:id", albumHandler.GetAlbumByID)
+		api.PUT("/:id", albumHandler.UpdateAlbum)
+		api.DELETE("/:id", albumHandler.DeleteAlbum)
 	}
 
 	// Media routes in separate group
-	mediaApi := r.Group("/api/media")
-	{
-	}
+	//mediaApi := r.Group("/api/media")
+	//{
+	//}
 
 	// Start server
-	log.Println("Server running on http://localhost:8084")
-	if err := r.Run(":8084"); err != nil {
+	log.Println("Server running on http://localhost:8085")
+	if err := r.Run(":8085"); err != nil {
 		log.Fatalf("Error starting server: %v", err)
 	}
 }
