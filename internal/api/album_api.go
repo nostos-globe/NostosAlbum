@@ -66,13 +66,44 @@ func (c *AlbumController) GetMyAlbums(ctx *gin.Context) {
 	}
 
 	albums, err := c.AlbumService.GetAlbumsByUserID(tokenResponse)
-
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "failed to get albums"})
 		return
 	}
 
-	ctx.JSON(http.StatusOK, albums)
+	var responses []gin.H
+	for _, album := range albums {
+		tripList, err := c.AlbumService.GetTripsByAlbumID(strconv.Itoa(album.AlbumID))
+		if err != nil {
+			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "failed to get trips for album"})
+			return
+		}
+
+		var trips []models.TripMedia
+		for _, tripID := range tripList {
+			trip, err := c.TripClient.GetTripByID(tokenCookie, tripID)
+			if err != nil {
+				ctx.JSON(http.StatusInternalServerError, gin.H{"error": "failed to get trip details"})
+				return
+			}
+			trips = append(trips, trip)
+		}
+
+		response := gin.H{
+			"album_id":     album.AlbumID,
+			"name":         album.Name,
+			"description":  album.Description,
+			"visibility":   album.Visibility,
+			"trips_count":  len(trips),
+			"trips":        trips,
+		}
+		responses = append(responses, response)
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"total_albums": len(responses),
+		"albums":       responses,
+	})
 }
 
 func (c *AlbumController) GetPublicAlbums(ctx *gin.Context) {
@@ -89,13 +120,44 @@ func (c *AlbumController) GetPublicAlbums(ctx *gin.Context) {
 	}
 
 	albums, err := c.AlbumService.GetPublicAlbums()
-
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "failed to get albums"})
 		return
 	}
 
-	ctx.JSON(http.StatusOK, albums)
+	var responses []gin.H
+	for _, album := range albums {
+		tripList, err := c.AlbumService.GetTripsByAlbumID(strconv.Itoa(album.AlbumID))
+		if err != nil {
+			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "failed to get trips for album"})
+			return
+		}
+
+		var trips []models.TripMedia
+		for _, tripID := range tripList {
+			trip, err := c.TripClient.GetTripByID(tokenCookie, tripID)
+			if err != nil {
+				ctx.JSON(http.StatusInternalServerError, gin.H{"error": "failed to get trip details"})
+				return
+			}
+			trips = append(trips, trip)
+		}
+
+		response := gin.H{
+			"album_id":     album.AlbumID,
+			"name":         album.Name,
+			"description":  album.Description,
+			"visibility":   album.Visibility,
+			"trips_count":  len(trips),
+			"trips":        trips,
+		}
+		responses = append(responses, response)
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"total_albums": len(responses),
+		"albums":       responses,
+	})
 }
 
 func (c *AlbumController) GetAlbumByID(ctx *gin.Context) {
