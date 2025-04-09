@@ -107,6 +107,75 @@ func (c *AlbumController) UpdateAlbum(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, updatedAlbum)
 }
 
+func (c *AlbumController) GetAlbumLocations(ctx *gin.Context) {
+	tokenCookie, err := ctx.Cookie("auth_token")
+	if err != nil {
+		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "no token found"})
+		return
+	}
+
+	tokenResponse, err := c.AuthClient.GetUserID(tokenCookie)
+	if err != nil || tokenResponse == 0 {
+		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "failed to find this user"})
+		return
+	}
+
+	albumID := ctx.Param("id")
+
+	album, err := c.AlbumService.GetAlbumByID(albumID)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "failed to get album"})
+		return
+	}
+
+	tripList, err := c.AlbumService.GetTripsByAlbumID(albumID)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "failed to get trips for album"})
+		return
+	}
+
+	var trips []models.TripMedia
+	for _, tripID := range tripList {
+		trip, err := c.TripClient.GetTripByID(tokenCookie, tripID)
+		if err != nil {
+			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "failed to get trip details"})
+			return
+		}
+		trips = append(trips, trip)
+	}
+
+	// Use a map to track unique location IDs
+	// Change the map key type from int to int64
+	locationMap := make(map[int64]models.Location)
+
+	for _, trip := range trips {
+		location, err := c.TripClient.GetLocationByTripID(tokenCookie, trip.Trip.TripID)
+		if err != nil {
+			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "failed to get location details"})
+			return
+		}
+
+		// Now this will work correctly with int64 type
+		for _, loc := range location {
+			locationMap[loc.LocationID] = loc
+		}
+	}
+
+	// Convert map values back to slice
+	var locations []models.Location
+	for _, loc := range locationMap {
+		locations = append(locations, loc)
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"album_id":   album.AlbumID,
+		"name":       album.Name,
+		"visibility": album.Visibility,
+		"locations":  locations,
+	})
+
+}
+
 func (c *AlbumController) DeleteAlbum(ctx *gin.Context) {
 	tokenCookie, err := ctx.Cookie("auth_token")
 	if err != nil {
@@ -278,12 +347,12 @@ func (c *AlbumController) GetMyAlbumsWithTrips(ctx *gin.Context) {
 		}
 
 		response := gin.H{
-			"album_id":     album.AlbumID,
-			"name":         album.Name,
-			"description":  album.Description,
-			"visibility":   album.Visibility,
-			"trips_count":  len(trips),
-			"trips":        trips,
+			"album_id":    album.AlbumID,
+			"name":        album.Name,
+			"description": album.Description,
+			"visibility":  album.Visibility,
+			"trips_count": len(trips),
+			"trips":       trips,
 		}
 		responses = append(responses, response)
 	}
@@ -332,12 +401,12 @@ func (c *AlbumController) GetPublicAlbumsWithTrips(ctx *gin.Context) {
 		}
 
 		response := gin.H{
-			"album_id":     album.AlbumID,
-			"name":         album.Name,
-			"description":  album.Description,
-			"visibility":   album.Visibility,
-			"trips_count":  len(trips),
-			"trips":        trips,
+			"album_id":    album.AlbumID,
+			"name":        album.Name,
+			"description": album.Description,
+			"visibility":  album.Visibility,
+			"trips_count": len(trips),
+			"trips":       trips,
 		}
 		responses = append(responses, response)
 	}

@@ -42,3 +42,35 @@ func (c *TripClient) GetTripByID(token string, TripMediaID uint) (models.TripMed
 
 	return response, nil
 }
+
+func (c *TripClient) GetLocationByTripID(token string, TripID uint) ([]models.Location, error) {
+	req, err := http.NewRequest("GET", fmt.Sprintf("%s/api/trips/%d/locations", c.BaseURL, TripID), nil)
+	if err != nil {
+		fmt.Printf("Error creating request: %v\n", err)
+		return nil, err
+	}
+
+	req.Header.Set("Cookie", "auth_token="+token)
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		fmt.Printf("Error making request: %v\n", err)
+		return nil, err
+	}
+
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		err := fmt.Errorf("failed to get Locations: %d", resp.StatusCode)
+		fmt.Printf("Error: %v\n", err)
+		return nil, err
+	}
+
+	var response []models.Location
+	if err := json.NewDecoder(resp.Body).Decode(&response); err != nil {
+		fmt.Printf("Error decoding response: %v\n", err)
+		return nil, err
+	}
+
+	return response, nil
+}

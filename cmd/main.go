@@ -58,10 +58,10 @@ func main() {
 
 	// Initialize controllers
 	albumHandler := &controller.AlbumController{
-		AlbumService:     	albumService,
-		AuthClient:       	authClient,
-		ProfileClient: 		profileClient,
-		TripClient:			tripClient,
+		AlbumService:  albumService,
+		AuthClient:    authClient,
+		ProfileClient: profileClient,
+		TripClient:    tripClient,
 	}
 
 	// Initialize Gin
@@ -75,7 +75,8 @@ func main() {
 		api.PUT("/:id", albumHandler.UpdateAlbum)
 		api.DELETE("/:id", albumHandler.DeleteAlbum)
 		api.GET("/:id", albumHandler.GetAlbumByID)
-		api.GET("/user/:id", albumHandler.GetAlbumsByUserID) 
+		api.GET("/user/:id", albumHandler.GetAlbumsByUserID)
+		api.GET("/:id/locations", albumHandler.GetAlbumLocations)
 		api.GET("/public", albumHandler.GetPublicAlbums)
 	}
 
