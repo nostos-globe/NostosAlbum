@@ -210,8 +210,36 @@ func (c *AlbumController) GetAlbumByID(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, album)
 }
 
-// Albums with trips
+func (c *AlbumController) GetAlbumsByUserID(ctx *gin.Context) {
+	tokenCookie, err := ctx.Cookie("auth_token")
+	if err != nil {
+		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "no token found"})
+		return
+	}
 
+	tokenResponse, err := c.AuthClient.GetUserID(tokenCookie)
+	if err != nil || tokenResponse == 0 {
+		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "failed to find this user"})
+		return
+	}
+
+	id := ctx.Param("id")
+	userID, err := strconv.ParseUint(id, 10, 32)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "invalid user ID"})
+		return
+	}
+
+	albums, err := c.AlbumService.GetAlbumsByUserID(uint(userID))
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "failed to get albums"})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, albums)
+}
+
+// Albums with trips
 func (c *AlbumController) GetMyAlbumsWithTrips(ctx *gin.Context) {
 	tokenCookie, err := ctx.Cookie("auth_token")
 	if err != nil {

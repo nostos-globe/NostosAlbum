@@ -75,6 +75,7 @@ func main() {
 		api.PUT("/:id", albumHandler.UpdateAlbum)
 		api.DELETE("/:id", albumHandler.DeleteAlbum)
 		api.GET("/:id", albumHandler.GetAlbumByID)
+		api.GET("/user/:id", albumHandler.GetAlbumsByUserID) 
 		api.GET("/public", albumHandler.GetPublicAlbums)
 	}
 
