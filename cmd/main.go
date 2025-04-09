@@ -72,16 +72,19 @@ func main() {
 	{
 		api.POST("/", albumHandler.CreateAlbum)
 		api.GET("/", albumHandler.GetMyAlbums)
-		api.GET("/public", albumHandler.GetPublicAlbums)
-		api.GET("/:id", albumHandler.GetAlbumByID)
 		api.PUT("/:id", albumHandler.UpdateAlbum)
 		api.DELETE("/:id", albumHandler.DeleteAlbum)
+		api.GET("/:id", albumHandler.GetAlbumByID)
+		api.GET("/public", albumHandler.GetPublicAlbums)
 	}
 
 	// Media routes in separate group
-	//mediaApi := r.Group("/api/media")
-	//{
-	//}
+	tripsApi := r.Group("/api/albums/trips")
+	{
+		tripsApi.GET("/", albumHandler.GetMyAlbumsWithTrips)
+		tripsApi.GET("/public", albumHandler.GetPublicAlbumsWithTrips)
+		tripsApi.GET("/:id", albumHandler.GetAlbumByIDWithTrips)
+	}
 
 	// Start server
 	log.Println("Server running on http://localhost:8085")
