@@ -19,11 +19,6 @@ func init() {
 		log.Printf("Warning: .env file not found or error loading it: %v", err)
 	}
 
-	minioManager := config.InitMinIO()
-	if minioManager == nil {
-		log.Println("Faliing to init MinIO")
-	}
-
 	secretsManager := config.GetSecretsManager()
 	if secretsManager != nil {
 		secrets := secretsManager.LoadSecrets()
