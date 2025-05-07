@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"fmt"
 	"main/internal/models"
 	"main/internal/service"
 	"net/http"
@@ -141,6 +142,8 @@ func (c *AlbumController) GetAlbumLocations(ctx *gin.Context) {
 			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "failed to get trip details"})
 			return
 		}
+		// Log the received trip data
+		fmt.Printf("Received trip data for tripID %d: %+v", tripID, trip)
 		trips = append(trips, trip)
 	}
 
