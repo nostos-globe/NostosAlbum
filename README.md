@@ -88,21 +88,18 @@ The Album Service integrates with:
 - **Media Access**: Secured through proper service integration  
 
 ---
+## Endpoints
 
-## Structure
-
-```plaintext
-NostosAlbum/
-├── cmd/
-│   └── main.go           # Application entry point
-├── internal/
-│   ├── api/              # HTTP controllers
-│   ├── db/               # Database repositories
-│   ├── models/           # Data models
-│   └── service/          # Business logic and service clients
-├── pkg/
-│   ├── config/           # Configuration management
-│   └── db/               # Database connection
-├── Dockerfile            # Container definition
-├── go.mod                # Go module definition
-└── README.md             # This file
+| Method | Route                          | Description                                    |
+|--------|--------------------------------|------------------------------------------------|
+| POST   | /api/albums/                   | Create a new album                             |
+| GET    | /api/albums/                   | Get current user's albums                      |
+| PUT    | /api/albums/:id                | Update an album                                |
+| DELETE | /api/albums/:id                | Delete an album                                |
+| GET    | /api/albums/:id                | Get album by ID                                |
+| GET    | /api/albums/user/:id           | Get albums by user ID                          |
+| GET    | /api/albums/:id/locations      | Get locations associated with an album         |
+| GET    | /api/albums/public             | Get all public albums                          |
+| GET    | /api/albums/trips/             | Get current user's albums with trips           |
+| GET    | /api/albums/trips/public       | Get public albums with trips                   |
+| GET    | /api/albums/trips/:id          | Get album by ID with associated trips          |
